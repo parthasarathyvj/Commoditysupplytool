@@ -475,6 +475,23 @@ function filterFinance(){
   const c=document.getElementById('financeCommodity').value,r=document.getElementById('financeRegion').value,cur=document.getElementById('financeCurrency').value,q=document.getElementById('financeSearch').value.toLowerCase();
   document.querySelectorAll('#financeTable tbody tr').forEach(x=>{const ok=(!c||x.dataset.c===c)&&(!r||x.dataset.r===r)&&(!cur||x.dataset.curr===cur)&&(!q||x.textContent.toLowerCase().includes(q));x.style.display=ok?'':'none'})
 }
+function refreshFilteredData(control,announce=false){
+  const filterGroup=control.closest('.filters');
+  const card=filterGroup&&filterGroup.closest('.card');
+  const table=card&&card.querySelector('table');
+  if(!filterGroup||!table||table.id==='financeTable')return;
+  const filters=[...filterGroup.querySelectorAll('select,input')].map(input=>({
+    value:input.value.trim().toLowerCase(),
+    type:input.tagName.toLowerCase()
+  })).filter(filter=>filter.value&&filter.value!=='all'&&!filter.value.startsWith('all '));
+  table.querySelectorAll('tbody tr').forEach(row=>{
+    const rowText=row.textContent.toLowerCase();
+    row.style.display=filters.every(filter=>
+      (filter.type==='select'&&['p10','p11','p12','2025','2026'].includes(filter.value))||rowText.includes(filter.value)
+    )?'':'none';
+  });
+  if(announce)notify('Data refreshed for selected filters');
+}
 function exportCSV(type){
   const rows = {
     home:[['Metric','Value'],['Volume Actual/Forecast','35779 MT'],['Plan Volume','36113 MT'],['Index to Plan','99.08%']],
@@ -563,6 +580,12 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Escape')closeCopilotPopup();
 });
 window.addEventListener('click',e=>document.querySelectorAll('.modal.show').forEach(m=>{if(e.target===m)m.classList.remove('show')}));
+document.addEventListener('change',e=>{
+  if(e.target.matches('.filters select'))refreshFilteredData(e.target,true);
+});
+document.addEventListener('input',e=>{
+  if(e.target.matches('.filters input'))refreshFilteredData(e.target);
+});
 window.addEventListener('load',initCharts);
 </script>
 </body>
