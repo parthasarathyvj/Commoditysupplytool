@@ -352,6 +352,11 @@ button{cursor:pointer}
   <tr><td>CASA GRANDE PLANT</td><td>Wheat</td><td>West - US</td><td>USA</td><td><span class="badge ok">Active</span></td><td>05-Sep-2026</td><td><button class="btn" onclick="openEditPopup('Edit Plant: CASA GRANDE PLANT',{name:'CASA GRANDE PLANT',category:'Wheat / West - US',status:'Active',notes:'Plant is active and updated this cycle.'})">Edit</button></td></tr>
   <tr><td>OMAHA PLANT</td><td>Oil</td><td>Central - US</td><td>USA</td><td><span class="badge off">Inactive</span></td><td>01-Sep-2026</td><td><button class="btn" onclick="openEditPopup('Edit Plant: OMAHA PLANT',{name:'OMAHA PLANT',category:'Oil / Central - US',status:'Inactive',notes:'Plant marked inactive and needs validation before next cycle.'})">Edit</button></td></tr>
   </tbody></table></div></div>
+  <div class="card"><div class="card-header"><h3>User Access</h3><div class="actions"><div class="search"><input oninput="filterTable('userTable',this.value,-1)" placeholder="Search users"></div><button class="btn primary" onclick="openUserModal()">+ Create User</button></div></div><div class="table-wrap"><table class="data-table" id="userTable"><thead><tr><th>Full Name</th><th>Username</th><th>Email</th><th>Role</th><th>Region</th><th>Status</th><th>Last Login</th><th>Action</th></tr></thead><tbody>
+  <tr><td>Admin User</td><td>admin</td><td>admin@cst.local</td><td>Administrator</td><td>All Regions</td><td><span class="badge ok">Active</span></td><td>09-Sep-2026</td><td><button class="btn" onclick="openUserModal('edit',{name:'Admin User',username:'admin',email:'admin@cst.local',role:'Administrator',region:'All Regions',status:'Active'})">Edit</button></td></tr>
+  <tr><td>Tiger Thomas</td><td>tiger</td><td>tiger@cst.local</td><td>Supply Planner</td><td>East - US</td><td><span class="badge ok">Active</span></td><td>08-Sep-2026</td><td><button class="btn" onclick="openUserModal('edit',{name:'Tiger Thomas',username:'tiger',email:'tiger@cst.local',role:'Supply Planner',region:'East - US',status:'Active'})">Edit</button></td></tr>
+  <tr><td>Daniel Brown</td><td>dbrown</td><td>daniel.brown@cst.local</td><td>Commodity Owner</td><td>Canada</td><td><span class="badge warn">Pending</span></td><td>Never</td><td><button class="btn" onclick="openUserModal('edit',{name:'Daniel Brown',username:'dbrown',email:'daniel.brown@cst.local',role:'Commodity Owner',region:'Canada',status:'Pending'})">Edit</button></td></tr>
+  </tbody></table></div></div>
   <div class="grid2"><div class="card"><div class="card-header"><h3>Commodity Master</h3><button class="btn primary" onclick="openModal('commodityModal')">+ Add</button></div><table class="data-table"><tr><th>Code</th><th>Name</th><th>Unit</th><th>Status</th></tr><tr><td>WH</td><td>Wheat</td><td>MT</td><td><span class="badge ok">Active</span></td></tr><tr><td>OA</td><td>Oats</td><td>MT</td><td><span class="badge ok">Active</span></td></tr><tr><td>OL</td><td>Oil</td><td>MT</td><td><span class="badge ok">Active</span></td></tr></table></div>
   <div class="card"><div class="card-header"><h3>System Configuration</h3></div><table class="data-table"><tr><td>Planning tolerance</td><td><b>2%</b></td><td><button class="btn" onclick="openEditPopup('Edit Setting: Planning tolerance',{name:'Planning tolerance',category:'Admin',status:'Active',notes:'Allowed variance threshold for planning updates.'})">Edit</button></td></tr><tr><td>Default unit</td><td><b>MT</b></td><td><button class="btn" onclick="openEditPopup('Edit Setting: Default unit',{name:'Default unit',category:'Admin',status:'Active',notes:'Default unit used across planning and reporting.'})">Edit</button></td></tr><tr><td>Data refresh</td><td><b>Daily 06:00</b></td><td><button class="btn" onclick="openEditPopup('Edit Setting: Data refresh',{name:'Data refresh',category:'Admin',status:'Active',notes:'Scheduled refresh timing for master and transactional data.'})">Edit</button></td></tr></table></div></div>
 </section>
@@ -397,6 +402,9 @@ button{cursor:pointer}
 
 <div class="modal" id="editModal"><div class="modal-box"><div class="modal-head"><h3 id="editModalTitle">Edit Record</h3><button class="close" onclick="closeModal('editModal')">×</button></div><div class="form-grid">
 <div class="field"><label>Record</label><input id="editRecordName"></div><div class="field"><label>Category</label><input id="editRecordCategory"></div><div class="field"><label>Status</label><select id="editRecordStatus"><option>Active</option><option>On Budget</option><option>In Review</option><option>Review</option><option>Pending</option><option>Approved</option><option>Inactive</option><option>Exception</option></select></div><div class="field"><label>Effective From</label><input id="editRecordDate" type="date"></div><div class="field full"><label>Notes</label><input id="editRecordNotes"></div></div><div class="footer-actions"><button class="btn" onclick="closeModal('editModal')">Cancel</button><button class="btn primary" onclick="saveAndNotify('editModal','Changes saved successfully')">Save Changes</button></div></div></div>
+
+<div class="modal" id="userModal"><div class="modal-box"><div class="modal-head"><h3 id="userModalTitle">Create User</h3><button class="close" onclick="closeModal('userModal')">×</button></div><div class="form-grid">
+<div class="field"><label>Full Name</label><input id="userName" placeholder="Full name"></div><div class="field"><label>Username</label><input id="userUsername" placeholder="username"></div><div class="field"><label>Email</label><input id="userEmail" type="email" placeholder="name@cst.local"></div><div class="field"><label>Role</label><select id="userRole"><option>Administrator</option><option>Supply Planner</option><option>Commodity Owner</option><option>Finance Analyst</option><option>Viewer</option></select></div><div class="field"><label>Region</label><select id="userRegion"><option>All Regions</option><option>East - US</option><option>Central - US</option><option>West - US</option><option>Canada</option></select></div><div class="field"><label>Status</label><select id="userStatus"><option>Active</option><option>Pending</option><option>Inactive</option></select></div><div class="field full"><label>Temporary Password</label><input id="userPassword" type="password" placeholder="Set temporary password"></div></div><div class="footer-actions"><button class="btn" onclick="closeModal('userModal')">Cancel</button><button class="btn primary" onclick="saveAndNotify('userModal','User saved successfully')">Save User</button></div></div></div>
 
 <div id="toast" class="toast"></div>
 
@@ -449,6 +457,17 @@ function openEditPopup(title, defaults = {}){
   status.value = defaults.status || 'Active';
   notes.value = defaults.notes || '';
   modal.classList.add('show');
+}
+function openUserModal(mode='create', defaults = {}){
+  document.getElementById('userModalTitle').textContent=mode==='edit'?'Edit User':'Create User';
+  document.getElementById('userName').value=defaults.name||'';
+  document.getElementById('userUsername').value=defaults.username||'';
+  document.getElementById('userEmail').value=defaults.email||'';
+  document.getElementById('userRole').value=defaults.role||'Supply Planner';
+  document.getElementById('userRegion').value=defaults.region||'All Regions';
+  document.getElementById('userStatus').value=defaults.status||'Active';
+  document.getElementById('userPassword').value='';
+  document.getElementById('userModal').classList.add('show');
 }
 function saveAndNotify(id,msg){closeModal(id);notify(msg)}
 function filterTable(id,q,col){q=(q||'').toLowerCase();document.querySelectorAll('#'+id+' tbody tr').forEach(r=>r.style.display=r.textContent.toLowerCase().includes(q)?'':'none')}
