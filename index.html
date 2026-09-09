@@ -126,7 +126,7 @@ button{cursor:pointer}
     <button class="active" onclick="setSub(this)">US</button><button onclick="setSub(this)">US-Core</button><button onclick="setSub(this)">Co-Man</button><button onclick="setSub(this)">Canada</button>
   </div>
   <div id="standardSub" class="subgroup hidden">
-    <button class="active" onclick="setSub(this)">Overview</button><button onclick="setSub(this)">Details</button><button onclick="setSub(this)">Exceptions</button>
+    <button class="active" onclick="setSub(this)">Overview</button><button onclick="showSubView('details',this)">Details</button><button onclick="showSubView('exceptions',this)">Exceptions</button>
   </div>
   <div class="toolbar"><button type="button" id="pcVolumeButton" class="primary-outline" onclick="openPcVolumeModal(event)" aria-label="Open PC Volume Plan form">PC Volume Plan</button><select><option>Period</option><option>Week</option><option>Month</option></select></div>
 </div>
@@ -420,6 +420,8 @@ button{cursor:pointer}
 <div class="modal" id="pcVolumeModal"><div class="modal-box"><div class="modal-head"><h3>PC Volume Plan View</h3><button class="close" onclick="closeModal('pcVolumeModal')">×</button></div><div class="form-grid">
 <div class="field"><label>Period</label><select><option>P10</option><option>P11</option><option>P12</option></select></div><div class="field"><label>Week</label><select><option>W1</option><option>W2</option><option>W3</option><option>W4</option></select></div><div class="field"><label>Plant</label><select><option>All Plants</option><option>BELOIT PLANT</option><option>CAMBRIDGE PLANT</option><option>CASA GRANDE PLANT</option><option>OMAHA PLANT</option></select></div><div class="field"><label>Commodity</label><select><option>Wheat</option><option>Oats</option><option>Oil</option><option>Corn</option></select></div><div class="field"><label>Plan Volume (MT)</label><input type="number" min="0" step="1" placeholder="0"></div><div class="field"><label>Forecast Volume (MT)</label><input type="number" min="0" step="1" placeholder="0"></div><div class="field full"><label>Notes</label><input placeholder="Planning notes or allocation comments"></div></div><div class="footer-actions"><button class="btn" onclick="closeModal('pcVolumeModal')">Cancel</button><button class="btn primary" onclick="saveAndNotify('pcVolumeModal','PC volume plan saved successfully')">Save Plan</button></div></div></div>
 
+<div class="modal" id="subViewModal"><div class="modal-box"><div class="modal-head"><h3 id="subViewTitle">Details</h3><button class="close" onclick="closeModal('subViewModal')">×</button></div><div class="actions" style="margin-bottom:12px"><button id="subListButton" class="btn primary" onclick="toggleSubView('list')">List View</button><button id="subFormButton" class="btn" onclick="toggleSubView('form')">Form View</button></div><div id="subListView"><div class="table-wrap"><table class="data-table"><thead id="subViewHead"></thead><tbody id="subViewBody"></tbody></table></div></div><div id="subFormView" class="hidden"><div class="form-grid"><div class="field"><label id="subRecordLabel">Record</label><input id="subRecord" placeholder="Enter record"></div><div class="field"><label>Category</label><input id="subCategory" placeholder="Category or area"></div><div class="field"><label>Owner</label><input id="subOwner" placeholder="Owner name"></div><div class="field"><label>Status</label><select id="subStatus"><option>Open</option><option>In Review</option><option>Resolved</option><option>Active</option></select></div><div class="field full"><label>Notes</label><textarea id="subNotes" rows="4" placeholder="Add details or exception notes"></textarea></div></div><div class="footer-actions"><button class="btn" onclick="toggleSubView('list')">Cancel</button><button class="btn primary" onclick="saveSubView()">Save Record</button></div></div></div></div>
+
 <div class="modal" id="editModal"><div class="modal-box"><div class="modal-head"><h3 id="editModalTitle">Edit Record</h3><button class="close" onclick="closeModal('editModal')">×</button></div><div class="form-grid">
 <div class="field"><label>Record</label><input id="editRecordName"></div><div class="field"><label>Category</label><input id="editRecordCategory"></div><div class="field"><label>Status</label><select id="editRecordStatus"><option>Active</option><option>On Budget</option><option>In Review</option><option>Review</option><option>Pending</option><option>Approved</option><option>Inactive</option><option>Exception</option></select></div><div class="field"><label>Effective From</label><input id="editRecordDate" type="date"></div><div class="field full"><label>Notes</label><input id="editRecordNotes"></div></div><div class="footer-actions"><button class="btn" onclick="closeModal('editModal')">Cancel</button><button class="btn primary" onclick="saveAndNotify('editModal','Changes saved successfully')">Save Changes</button></div></div></div>
 
@@ -462,6 +464,24 @@ function showScreen(id,btn){
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function setSub(btn){btn.parentElement.querySelectorAll('button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');notify(btn.textContent+' view selected')}
+function showSubView(view,btn){
+  setSub(btn);
+  const isException=view==='exceptions';
+  document.getElementById('subViewTitle').textContent=isException?'Exceptions':'Details';
+  document.getElementById('subRecordLabel').textContent=isException?'Exception':'Detail';
+  document.getElementById('subViewHead').innerHTML=isException?'<tr><th>Severity</th><th>Area</th><th>Issue</th><th>Owner</th><th>Due Date</th><th>Status</th></tr>':'<tr><th>Record ID</th><th>Record</th><th>Category</th><th>Owner</th><th>Updated</th><th>Status</th></tr>';
+  document.getElementById('subViewBody').innerHTML=isException?'<tr><td><span class="badge off">High</span></td><td>Finance</td><td>Corn rate above threshold</td><td>Finance Team</td><td>12-Sep-2026</td><td><span class="badge warn">Open</span></td></tr><tr><td><span class="badge warn">Medium</span></td><td>Plant Matrix</td><td>CAMBRIDGE allocation below plan</td><td>Supply Planning</td><td>15-Sep-2026</td><td><span class="badge warn">In Review</span></td></tr>':'<tr><td>DT-1001</td><td>Wheat allocation</td><td>Plant Matrix</td><td>Supply Planning</td><td>09-Sep-2026</td><td><span class="badge ok">Active</span></td></tr><tr><td>DT-1002</td><td>Oats ownership</td><td>Ownership</td><td>Daniel Brown</td><td>08-Sep-2026</td><td><span class="badge ok">Active</span></td></tr>';
+  toggleSubView('list');
+  openModal('subViewModal');
+}
+function toggleSubView(view){
+  const list=view==='list';
+  document.getElementById('subListView').classList.toggle('hidden',!list);
+  document.getElementById('subFormView').classList.toggle('hidden',list);
+  document.getElementById('subListButton').classList.toggle('primary',list);
+  document.getElementById('subFormButton').classList.toggle('primary',!list);
+}
+function saveSubView(){closeModal('subViewModal');notify('Record saved successfully')}
 function notify(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window._toast);window._toast=setTimeout(()=>t.classList.remove('show'),2400)}
 function openModal(id){document.getElementById(id).classList.add('show')}
 function closeModal(id){document.getElementById(id).classList.remove('show')}
