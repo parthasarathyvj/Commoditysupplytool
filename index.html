@@ -205,16 +205,16 @@ button{cursor:pointer}
   </div>
   <div class="grid3"><div class="stat-box"><div class="label">Owned Commodities</div><div class="value">42</div><div class="trend">▲ 4 this month</div></div><div class="stat-box"><div class="label">Unassigned</div><div class="value">3</div><div class="trend">Needs action</div></div><div class="stat-box"><div class="label">Active Owners</div><div class="value">18</div><div class="trend">Across 4 regions</div></div></div>
   <div class="card"><div class="filters"><div class="field"><label>Region</label><select onchange="filterTable('ownershipTable',this.value,0)"><option value="">All</option><option>East - US</option><option>West - US</option><option>Canada</option></select></div><div class="field search"><label>Search</label><input oninput="filterTable('ownershipTable',this.value,-1)" placeholder="Commodity, owner or plant"></div></div>
-  <div class="table-wrap"><table class="data-table" id="ownershipTable"><thead><tr><th>Region</th><th>Commodity</th><th>Owner</th><th>Supplier</th><th>Plant</th><th>Effective From</th><th>Status</th></tr></thead><tbody>
-  <tr><td>East - US</td><td>Wheat</td><td>John Carter</td><td>North Grain Co.</td><td>BELOIT PLANT</td><td>01-Sep-2026</td><td><span class="badge ok">Active</span></td></tr>
-  <tr><td>West - US</td><td>Oil</td><td>Maria Lopez</td><td>Agri Oils LLC</td><td>CASA GRANDE PLANT</td><td>01-Sep-2026</td><td><span class="badge ok">Active</span></td></tr>
-  <tr><td>Canada</td><td>Oats</td><td>Daniel Brown</td><td>Maple Oats Ltd.</td><td>CAMBRIDGE PLANT</td><td>15-Aug-2026</td><td><span class="badge warn">Review</span></td></tr>
+  <div class="table-wrap"><table class="data-table" id="ownershipTable"><thead><tr><th>Region</th><th>Commodity</th><th>Owner</th><th>Supplier</th><th>Plant</th><th>Effective From</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  <tr><td>East - US</td><td>Wheat</td><td>John Carter</td><td>North Grain Co.</td><td>BELOIT PLANT</td><td>01-Sep-2026</td><td><span class="badge ok">Active</span></td><td><button class="btn" onclick="openEditPopup('Edit Ownership: Wheat',{name:'Wheat / BELOIT PLANT',category:'East - US / North Grain Co.',status:'Active',notes:'Ownership assigned to John Carter.'})">Edit</button></td></tr>
+  <tr><td>West - US</td><td>Oil</td><td>Maria Lopez</td><td>Agri Oils LLC</td><td>CASA GRANDE PLANT</td><td>01-Sep-2026</td><td><span class="badge ok">Active</span></td><td><button class="btn" onclick="openEditPopup('Edit Ownership: Oil',{name:'Oil / CASA GRANDE PLANT',category:'West - US / Agri Oils LLC',status:'Active',notes:'Ownership assigned to Maria Lopez.'})">Edit</button></td></tr>
+  <tr><td>Canada</td><td>Oats</td><td>Daniel Brown</td><td>Maple Oats Ltd.</td><td>CAMBRIDGE PLANT</td><td>15-Aug-2026</td><td><span class="badge warn">Review</span></td><td><button class="btn" onclick="openEditPopup('Edit Ownership: Oats',{name:'Oats / CAMBRIDGE PLANT',category:'Canada / Maple Oats Ltd.',status:'Review',notes:'Ownership has been in Review since 15-Aug-2026.'})">Edit</button></td></tr>
   </tbody></table></div></div>
 </section>
 
 <!-- PLANT MATRIX -->
 <section id="matrix" class="screen">
-  <div class="page-head"><div><h2>Plant Allocation Matrix</h2><p>Review commodity allocations by plant, period and week.</p></div><div class="actions"><button class="btn" onclick="exportCSV('matrix')">Export Matrix</button><button class="btn primary" onclick="notify('Allocation editor opened')">Edit Allocation</button></div></div>
+  <div class="page-head"><div><h2>Plant Allocation Matrix</h2><p>Review commodity allocations by plant, period and week.</p></div><div class="actions"><button class="btn" onclick="exportCSV('matrix')">Export Matrix</button><button class="btn primary" onclick="openEditPopup('Edit Plant Allocation',{name:'Plant allocation',category:'P10 / All plants',status:'In Review',notes:'Update weekly commodity allocation values.'})">Edit Allocation</button></div></div>
   <div class="ai-insight-panel">
     <div class="ai-insight-icon">✦</div>
     <div class="ai-insight-body">
@@ -226,17 +226,17 @@ button{cursor:pointer}
       </ul>
       <div class="ai-insight-actions">
         <button onclick="openCopilotWithPrompt('Which plants are behind allocation?')">Which plants are behind?</button>
-        <button onclick="notify('Allocation editor opened')">Review CAMBRIDGE PLANT</button>
+        <button onclick="openEditPopup('Review Allocation: CAMBRIDGE PLANT',{name:'CAMBRIDGE PLANT',category:'Canada / P10',status:'Review',notes:'P10 | W2/W3 wheat allocation looks light.'})">Review CAMBRIDGE PLANT</button>
       </div>
     </div>
     <button class="ai-insight-close" onclick="this.closest('.ai-insight-panel').style.display='none'" title="Dismiss">×</button>
   </div>
   <div class="card"><div class="filters"><div class="field"><label>Plant</label><select><option>All Plants</option><option>BELOIT PLANT</option><option>CASA GRANDE PLANT</option><option>CAMBRIDGE PLANT</option></select></div><div class="field"><label>Period</label><select><option>P10</option><option>P09</option><option>P08</option></select></div><div class="field"><label>Region</label><select><option>All Regions</option><option>East - US</option><option>Canada</option></select></div><div class="field search"><label>Search</label><input oninput="filterTable('matrixTable',this.value,-1)" placeholder="Plant or commodity"></div></div>
-  <div class="table-wrap"><table class="data-table" id="matrixTable"><thead><tr><th>Plant Name</th><th>Region</th><th>P10 | W1</th><th>P10 | W2</th><th>P10 | W3</th><th>Weekly Volume</th><th>Status</th></tr></thead><tbody>
-  <tr><td>BELOIT PLANT</td><td>East - US</td><td>Wheat-38</td><td>Wheat-7</td><td>Oats-12</td><td>8,420 MT</td><td><span class="badge ok">Complete</span></td></tr>
-  <tr><td>CASA GRANDE PLANT</td><td>West - US</td><td>Oats-19</td><td>Wheat-14</td><td>Oil-8</td><td>6,830 MT</td><td><span class="badge ok">Complete</span></td></tr>
-  <tr><td>CAMBRIDGE PLANT</td><td>Canada</td><td>Oats-22</td><td>Wheat-9</td><td>Wheat-11</td><td>5,960 MT</td><td><span class="badge warn">Review</span></td></tr>
-  <tr><td>OMAHA PLANT</td><td>Central - US</td><td>Wheat-31</td><td>Oil-6</td><td>Oats-10</td><td>7,210 MT</td><td><span class="badge ok">Complete</span></td></tr>
+  <div class="table-wrap"><table class="data-table" id="matrixTable"><thead><tr><th>Plant Name</th><th>Region</th><th>P10 | W1</th><th>P10 | W2</th><th>P10 | W3</th><th>Weekly Volume</th><th>Status</th><th>Action</th></tr></thead><tbody>
+  <tr><td>BELOIT PLANT</td><td>East - US</td><td>Wheat-38</td><td>Wheat-7</td><td>Oats-12</td><td>8,420 MT</td><td><span class="badge ok">Complete</span></td><td><button class="btn" onclick="openEditPopup('Edit Allocation: BELOIT PLANT',{name:'BELOIT PLANT',category:'East - US / P10',status:'Complete',notes:'Update weekly allocation values.'})">Edit</button></td></tr>
+  <tr><td>CASA GRANDE PLANT</td><td>West - US</td><td>Oats-19</td><td>Wheat-14</td><td>Oil-8</td><td>6,830 MT</td><td><span class="badge ok">Complete</span></td><td><button class="btn" onclick="openEditPopup('Edit Allocation: CASA GRANDE PLANT',{name:'CASA GRANDE PLANT',category:'West - US / P10',status:'Complete',notes:'Update weekly allocation values.'})">Edit</button></td></tr>
+  <tr><td>CAMBRIDGE PLANT</td><td>Canada</td><td>Oats-22</td><td>Wheat-9</td><td>Wheat-11</td><td>5,960 MT</td><td><span class="badge warn">Review</span></td><td><button class="btn" onclick="openEditPopup('Edit Allocation: CAMBRIDGE PLANT',{name:'CAMBRIDGE PLANT',category:'Canada / P10',status:'Review',notes:'P10 | W2/W3 wheat allocation looks light.'})">Edit</button></td></tr>
+  <tr><td>OMAHA PLANT</td><td>Central - US</td><td>Wheat-31</td><td>Oil-6</td><td>Oats-10</td><td>7,210 MT</td><td><span class="badge ok">Complete</span></td><td><button class="btn" onclick="openEditPopup('Edit Allocation: OMAHA PLANT',{name:'OMAHA PLANT',category:'Central - US / P10',status:'Complete',notes:'Update weekly allocation values.'})">Edit</button></td></tr>
   </tbody></table></div></div>
 </section>
 
@@ -269,7 +269,7 @@ button{cursor:pointer}
 
 <!-- FORECAST -->
 <section id="forecast" class="screen">
-  <div class="page-head"><div><h2>Forecast Management</h2><p>Review, approve and compare commodity volume forecasts with plan.</p></div><div class="actions"><button class="btn" onclick="exportCSV('forecast')">Export</button><button class="btn primary" onclick="notify('Forecast submission opened')">Submit Forecast</button></div></div>
+  <div class="page-head"><div><h2>Forecast Management</h2><p>Review, approve and compare commodity volume forecasts with plan.</p></div><div class="actions"><button class="btn" onclick="exportCSV('forecast')">Export</button><button class="btn primary" onclick="openEditPopup('Edit Forecast Submission',{name:'P10 commodity forecast',category:'All commodities / 2026',status:'Pending',notes:'Review forecast values before submitting for approval.'})">Submit Forecast</button></div></div>
   <div class="ai-insight-panel">
     <div class="ai-insight-icon">✦</div>
     <div class="ai-insight-body">
@@ -281,17 +281,17 @@ button{cursor:pointer}
       </ul>
       <div class="ai-insight-actions">
         <button onclick="openCopilotWithPrompt('Show me forecast accuracy trend for wheat')">Wheat forecast accuracy</button>
-        <button onclick="notify('Oats forecast routed for approval')">Approve Oats forecast</button>
+        <button onclick="openEditPopup('Approve Forecast: Oats',{name:'Oats',category:'P10 / 2026',status:'Pending',notes:'Forecast is 9,530 MT against a 9,450 MT plan.'})">Approve Oats forecast</button>
       </div>
     </div>
     <button class="ai-insight-close" onclick="this.closest('.ai-insight-panel').style.display='none'" title="Dismiss">×</button>
   </div>
   <div class="grid3"><div class="stat-box"><div class="label">Forecast Volume</div><div class="value">35,779 MT</div><div class="trend">99.08% to plan</div></div><div class="stat-box"><div class="label">Variance to Plan</div><div class="value">334 MT</div><div class="trend">Favorable</div></div><div class="stat-box"><div class="label">Forecast Accuracy</div><div class="value">96.4%</div><div class="trend">▲ 1.8 pts</div></div></div>
   <div class="card"><div class="filters"><div class="field"><label>Period</label><select><option>P10</option><option>P11</option><option>P12</option></select></div><div class="field"><label>Year</label><select><option>2026</option><option>2025</option></select></div><div class="field"><label>Commodity</label><select><option>All</option><option>Wheat</option><option>Oats</option><option>Oil</option></select></div></div>
-  <div class="table-wrap"><table class="data-table"><thead><tr><th>Commodity</th><th>Plan</th><th>Forecast</th><th>Variance</th><th>Index</th><th>Prior Year</th><th>Approval</th></tr></thead><tbody>
-  <tr><td>Wheat</td><td>18,100 MT</td><td>17,920 MT</td><td>-180 MT</td><td>99.01%</td><td>17,340 MT</td><td><span class="badge ok">Approved</span></td></tr>
-  <tr><td>Oats</td><td>9,450 MT</td><td>9,530 MT</td><td>+80 MT</td><td>100.85%</td><td>9,110 MT</td><td><span class="badge warn">Pending</span></td></tr>
-  <tr><td>Oil</td><td>8,563 MT</td><td>8,329 MT</td><td>-234 MT</td><td>97.27%</td><td>8,100 MT</td><td><span class="badge ok">Approved</span></td></tr>
+  <div class="table-wrap"><table class="data-table"><thead><tr><th>Commodity</th><th>Plan</th><th>Forecast</th><th>Variance</th><th>Index</th><th>Prior Year</th><th>Approval</th><th>Action</th></tr></thead><tbody>
+  <tr><td>Wheat</td><td>18,100 MT</td><td>17,920 MT</td><td>-180 MT</td><td>99.01%</td><td>17,340 MT</td><td><span class="badge ok">Approved</span></td><td><button class="btn" onclick="openEditPopup('Edit Forecast: Wheat',{name:'Wheat',category:'P10 / 2026',status:'Approved',notes:'17,920 MT forecast against an 18,100 MT plan.'})">Edit</button></td></tr>
+  <tr><td>Oats</td><td>9,450 MT</td><td>9,530 MT</td><td>+80 MT</td><td>100.85%</td><td>9,110 MT</td><td><span class="badge warn">Pending</span></td><td><button class="btn" onclick="openEditPopup('Edit Forecast: Oats',{name:'Oats',category:'P10 / 2026',status:'Pending',notes:'9,530 MT forecast against a 9,450 MT plan.'})">Edit</button></td></tr>
+  <tr><td>Oil</td><td>8,563 MT</td><td>8,329 MT</td><td>-234 MT</td><td>97.27%</td><td>8,100 MT</td><td><span class="badge ok">Approved</span></td><td><button class="btn" onclick="openEditPopup('Edit Forecast: Oil',{name:'Oil',category:'P10 / 2026',status:'Approved',notes:'8,329 MT forecast against an 8,563 MT plan.'})">Edit</button></td></tr>
   </tbody></table></div></div>
   <div class="card"><div class="card-header"><h3>Forecast vs Plan Trend</h3></div><div class="canvas-container"><canvas id="forecastChart"></canvas></div></div>
 </section>
@@ -310,7 +310,7 @@ button{cursor:pointer}
       </ul>
       <div class="ai-insight-actions">
         <button onclick="openCopilotWithPrompt('Summarize finance rate exceptions')">Summarize exceptions</button>
-        <button onclick="notify('Editing CR-021')">Review CR-021</button>
+        <button onclick="openEditPopup('Edit Commodity Rate: CR-021',{name:'CR-021',category:'Corn / Central - US',status:'Exception',notes:'Exceeds approval threshold and requires exception handling.'})">Review CR-021</button>
       </div>
     </div>
     <button class="ai-insight-close" onclick="this.closest('.ai-insight-panel').style.display='none'" title="Dismiss">×</button>
@@ -341,7 +341,7 @@ button{cursor:pointer}
       </ul>
       <div class="ai-insight-actions">
         <button onclick="openCopilotWithPrompt('Which plants are inactive?')">Which plants are inactive?</button>
-        <button onclick="notify('Editing OMAHA PLANT')">Review OMAHA PLANT</button>
+        <button onclick="openEditPopup('Edit Plant: OMAHA PLANT',{name:'OMAHA PLANT',category:'Oil / Central - US',status:'Inactive',notes:'Plant marked inactive and needs validation before next cycle.'})">Review OMAHA PLANT</button>
       </div>
     </div>
     <button class="ai-insight-close" onclick="this.closest('.ai-insight-panel').style.display='none'" title="Dismiss">×</button>
@@ -394,6 +394,9 @@ button{cursor:pointer}
 <div class="modal" id="ownershipModal"><div class="modal-box"><div class="modal-head"><h3>Add Ownership</h3><button class="close" onclick="closeModal('ownershipModal')">×</button></div><div class="form-grid"><div class="field"><label>Region</label><select><option>East - US</option><option>West - US</option><option>Canada</option></select></div><div class="field"><label>Commodity</label><select><option>Wheat</option><option>Oats</option><option>Oil</option></select></div><div class="field"><label>Owner</label><input placeholder="Owner name"></div><div class="field"><label>Supplier</label><input placeholder="Supplier name"></div><div class="field full"><label>Effective From</label><input type="date"></div></div><div class="footer-actions"><button class="btn" onclick="closeModal('ownershipModal')">Cancel</button><button class="btn primary" onclick="saveAndNotify('ownershipModal','Ownership saved successfully')">Save Ownership</button></div></div></div>
 
 <div class="modal" id="varietyModal"><div class="modal-box"><div class="modal-head"><h3>Add Variety</h3><button class="close" onclick="closeModal('varietyModal')">×</button></div><div class="form-grid"><div class="field"><label>Commodity</label><select><option>Wheat</option><option>Oats</option><option>Oil</option></select></div><div class="field"><label>Variety Code</label><input placeholder="WH-NEW"></div><div class="field"><label>Variety Name</label><input placeholder="Variety name"></div><div class="field"><label>Grade</label><select><option>Standard</option><option>Premium</option><option>Organic</option></select></div><div class="field"><label>Conversion Factor</label><input type="number" step="0.01" placeholder="1.00"></div></div><div class="footer-actions"><button class="btn" onclick="closeModal('varietyModal')">Cancel</button><button class="btn primary" onclick="saveAndNotify('varietyModal','Variety saved successfully')">Save Variety</button></div></div></div>
+
+<div class="modal" id="editModal"><div class="modal-box"><div class="modal-head"><h3 id="editModalTitle">Edit Record</h3><button class="close" onclick="closeModal('editModal')">×</button></div><div class="form-grid">
+<div class="field"><label>Record</label><input id="editRecordName"></div><div class="field"><label>Category</label><input id="editRecordCategory"></div><div class="field"><label>Status</label><select id="editRecordStatus"><option>Active</option><option>On Budget</option><option>In Review</option><option>Review</option><option>Pending</option><option>Approved</option><option>Inactive</option><option>Exception</option></select></div><div class="field"><label>Effective From</label><input id="editRecordDate" type="date"></div><div class="field full"><label>Notes</label><input id="editRecordNotes"></div></div><div class="footer-actions"><button class="btn" onclick="closeModal('editModal')">Cancel</button><button class="btn primary" onclick="saveAndNotify('editModal','Changes saved successfully')">Save Changes</button></div></div></div>
 
 <div id="toast" class="toast"></div>
 
