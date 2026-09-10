@@ -18,14 +18,14 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointEleme
 const tabs = ['Home', 'Ownership', 'Plant Matrix', 'Variety', 'Forecast', 'Finance', 'Admin']
 const rows = {
   Home: [
-    ['Wheat', 'BELOIT PLANT', '4,820 MT', '4,900 MT', '98.37%', 'On Plan'],
-    ['Oats', 'CAMBRIDGE PLANT', '2,180 MT', '2,150 MT', '101.40%', 'Review'],
-    ['Oil', 'CASA GRANDE PLANT', '1,750 MT', '1,780 MT', '98.31%', 'On Plan'],
+    ['Wheat', 'BELOIT PLANT', '4,820 MT', '4,850 MT', '4,900 MT', '98.37%', 'On Plan'],
+    ['Oats', 'CAMBRIDGE PLANT', '2,180 MT', '2,160 MT', '2,150 MT', '101.40%', 'Review'],
+    ['Oil', 'CASA GRANDE PLANT', '1,750 MT', '1,770 MT', '1,780 MT', '98.31%', 'On Plan'],
   ],
   Ownership: [
-    ['Wheat', 'John Carter', 'North Grain Co.', 'BELOIT PLANT', 'East - US', 'Active'],
-    ['Oil', 'Maria Lopez', 'Agri Oils LLC', 'CASA GRANDE PLANT', 'West - US', 'Active'],
-    ['Oats', 'Daniel Brown', 'Maple Oats Ltd.', 'CAMBRIDGE PLANT', 'Canada', 'Review'],
+    ['Wheat', 'John Carter', 'North Grain Co.', 'BELOIT PLANT', 'East - US', '4,820 MT', 'Primary', 'Active'],
+    ['Oil', 'Maria Lopez', 'Agri Oils LLC', 'CASA GRANDE PLANT', 'West - US', '1,750 MT', 'Secondary', 'Active'],
+    ['Oats', 'Daniel Brown', 'Maple Oats Ltd.', 'CAMBRIDGE PLANT', 'Canada', '2,180 MT', 'Primary', 'Review'],
   ],
   'Plant Matrix': [
     ['BELOIT PLANT', 'East - US', 'Wheat-38', 'Wheat-7', 'Oats-12', 'Complete'],
@@ -39,9 +39,9 @@ const rows = {
     ['Oil', 'OL-CR', 'Crude Vegetable Oil', 'Standard', '0.98', 'Review'],
   ],
   Forecast: [
-    ['Wheat', '18,100 MT', '17,920 MT', '-180 MT', '99.01%', 'Approved'],
-    ['Oats', '9,450 MT', '9,530 MT', '+80 MT', '100.85%', 'Pending'],
-    ['Oil', '8,563 MT', '8,329 MT', '-234 MT', '97.27%', 'Approved'],
+    ['Wheat', '18,050 MT', '18,100 MT', '17,920 MT', '-180 MT', '99.01%', 'Approved'],
+    ['Oats', '9,500 MT', '9,450 MT', '9,530 MT', '+80 MT', '100.85%', 'Pending'],
+    ['Oil', '8,510 MT', '8,563 MT', '8,329 MT', '-234 MT', '97.27%', 'Approved'],
   ],
   Finance: [
     ['Wheat', 'WH-001', 'BELOIT / East - US', '$286.50', '$280.00', '+2.32%', 'Review'],
@@ -56,11 +56,11 @@ const rows = {
   ],
 }
 const headers = {
-  Home: ['Commodity', 'Plant', 'Actual / Forecast', 'Plan', 'Index', 'Status'],
-  Ownership: ['Commodity', 'Owner', 'Supplier', 'Plant', 'Region', 'Status'],
+  Home: ['Commodity', 'Plant', 'Actual', 'Actual / Forecast', 'Plan', 'Index', 'Status'],
+  Ownership: ['Commodity', 'Owner', 'Supplier', 'Plant', 'Region', 'Demand', 'Position', 'Status'],
   'Plant Matrix': ['Plant', 'Region', 'P10 | W1', 'P10 | W2', 'P10 | W3', 'Status'],
   Variety: ['Commodity', 'Code', 'Variety', 'Grade', 'Conversion', 'Status'],
-  Forecast: ['Commodity', 'Plan', 'Forecast', 'Variance', 'Index', 'Approval'],
+  Forecast: ['Commodity', 'Actual', 'Plan', 'Actual / Forecast', 'Variance', 'Index', 'Approval'],
   Finance: ['Commodity', 'Rate Code', 'Plant / Region', 'Current', 'Budget', 'Variance', 'Status'],
   Admin: ['Plant', 'Category', 'Region', 'Country', 'Status', 'Last Updated'],
 }
@@ -107,6 +107,10 @@ function Insight({ tab, onAsk }) {
   return <aside className="insight"><div className="insight-icon">✦</div><div><div className="insight-title">AI Insight <span>LIVE</span></div><ul>{copy.map((item) => <li key={item}>{item}</li>)}</ul><button className="text-button" onClick={() => onAsk('Summarize the key exceptions for this page')}>Ask CST Copilot</button></div></aside>
 }
 
+function TimeframeFilter({ value, onChange }) {
+  return <select aria-label="Comparison period filter" value={value} onChange={(event) => onChange(event.target.value)}><option>2024-2025</option><option>2025-2026</option><option>2023-2024</option></select>
+}
+
 function DataTable({ tab, query }) {
   const data = rows[tab].filter((row) => row.join(' ').toLowerCase().includes(query.toLowerCase()))
   return <div className="table-wrap"><table><thead><tr>{headers[tab].map((head) => <th key={head}>{head}</th>)}<th>Action</th></tr></thead><tbody>{data.map((row) => <tr key={row.join('-')}>{row.map((cell, index) => <td key={cell}>{index === row.length - 1 ? <span className={`badge ${cell === 'Active' || cell === 'Approved' || cell === 'On Plan' || cell === 'On Budget' || cell === 'Complete' ? 'ok' : cell === 'Exception' || cell === 'Inactive' ? 'off' : 'warn'}`}>{cell}</span> : cell}</td>)}<td><button className="btn small edit-button">Edit</button></td></tr>)}</tbody></table></div>
@@ -120,14 +124,14 @@ function AdminWorkspace({ query, onAdd }) {
   })}</div>
 }
 
-function FinanceWorkspace({ query, onMessage }) {
+function FinanceWorkspace({ query, onMessage, timeframe, onTimeframeChange }) {
   const financeData = { labels: ['Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'], datasets: [{ label: 'Average Commodity Rate', data: [260, 272, 279, 286, 292, 287], borderColor: '#3b82f6', backgroundColor: '#dbeafe', fill: true, tension: 0.3 }] }
-  return <><div className="kpi-container finance-kpis"><div className="kpi-card"><strong>$18.42M</strong><span>Current Spend</span><small>▲ 3.1% vs prior period</small></div><div className="kpi-card"><strong>$18.75M</strong><span>Budget</span><small>Remaining $0.33M</small></div><div className="kpi-card"><strong>+1.76%</strong><span>Rate Variance</span><small>Within 2% threshold</small></div></div><section className="card"><div className="card-header"><h3>Commodity Rate Management</h3><span className="badge ok">Finance Period: Sep-2026</span></div><div className="filters-row"><select><option>All Commodities</option><option>Wheat</option><option>Oats</option><option>Oil</option><option>Corn</option></select><select><option>All Regions</option><option>East - US</option><option>West - US</option><option>Central - US</option><option>Canada</option></select><select><option>All Currencies</option><option>USD</option><option>CAD</option></select><input value={query} onChange={(event) => onMessage(event.target.value)} placeholder="Commodity, plant or code" /></div><DataTable tab="Finance" query={query} /></section><div className="finance-grid"><section className="card chart-card"><h3>Commodity Rate Trend</h3><Line data={financeData} options={{ responsive: true, maintainAspectRatio: false }} /></section><section className="card"><div className="card-header"><h3>Finance Controls</h3></div><table><tbody><tr><td>Approval threshold</td><td><b>2.00%</b></td><td><button className="btn small">Edit</button></td></tr><tr><td>Rate refresh</td><td><b>Daily 06:00</b></td><td><button className="btn small">Edit</button></td></tr><tr><td>Default currency</td><td><b>USD</b></td><td><button className="btn small">Edit</button></td></tr></tbody></table></section></div></>
+  return <><div className="kpi-container finance-kpis"><div className="kpi-card"><strong>$18.42M</strong><span>Current Spend</span><small>▲ 3.1% vs prior period</small></div><div className="kpi-card"><strong>$18.75M</strong><span>Budget</span><small>Remaining $0.33M</small></div><div className="kpi-card"><strong>+1.76%</strong><span>Rate Variance</span><small>Within 2% threshold</small></div></div><section className="card"><div className="card-header"><h3>Commodity Rate Management</h3><span className="badge ok">Finance Period: Sep-2026</span></div><div className="filters-row"><select><option>All Commodities</option><option>Wheat</option><option>Oats</option><option>Oil</option><option>Corn</option></select><select><option>All Regions</option><option>East - US</option><option>West - US</option><option>Central - US</option><option>Canada</option></select><select><option>All Currencies</option><option>USD</option><option>CAD</option></select><TimeframeFilter value={timeframe} onChange={onTimeframeChange} /><input value={query} onChange={(event) => onMessage(event.target.value)} placeholder="Commodity, plant or code" /></div><DataTable tab="Finance" query={query} /></section><div className="finance-grid"><section className="card chart-card"><h3>Commodity Rate Trend</h3><Line data={financeData} options={{ responsive: true, maintainAspectRatio: false }} /></section><section className="card"><div className="card-header"><h3>Finance Controls</h3></div><table><tbody><tr><td>Approval threshold</td><td><b>2.00%</b></td><td><button className="btn small">Edit</button></td></tr><tr><td>Rate refresh</td><td><b>Daily 06:00</b></td><td><button className="btn small">Edit</button></td></tr><tr><td>Default currency</td><td><b>USD</b></td><td><button className="btn small">Edit</button></td></tr></tbody></table></section></div></>
 }
 
-function ForecastWorkspace({ query }) {
+function ForecastWorkspace({ query, onMessage, timeframe, onTimeframeChange }) {
   const forecastData = { labels: ['P05', 'P06', 'P07', 'P08', 'P09', 'P10'], datasets: [{ label: 'Plan', data: [34500, 34800, 35100, 35400, 35700, 36113], borderColor: '#1e3a8a', tension: 0.3 }, { label: 'Forecast', data: [34100, 35000, 34950, 35600, 35950, 35779], borderColor: '#3b82f6', tension: 0.3 }] }
-  return <><div className="kpi-container finance-kpis"><div className="kpi-card"><strong>35,779 MT</strong><span>Forecast Volume</span><small>99.08% to plan</small></div><div className="kpi-card"><strong>334 MT</strong><span>Variance to Plan</span><small>Favorable</small></div><div className="kpi-card"><strong>96.4%</strong><span>Forecast Accuracy</span><small>▲ 1.8 pts</small></div></div><section className="card"><div className="card-header"><h3>Forecast Submissions</h3><span className="badge warn">P10 · 2026</span></div><DataTable tab="Forecast" query={query} /></section><section className="card chart-card forecast-chart"><h3>Forecast vs Plan Trend</h3><Line data={forecastData} options={{ responsive: true, maintainAspectRatio: false }} /></section></>
+  return <><div className="kpi-container finance-kpis"><div className="kpi-card"><strong>35,779 MT</strong><span>Forecast Volume</span><small>99.08% to plan</small></div><div className="kpi-card"><strong>334 MT</strong><span>Variance to Plan</span><small>Favorable</small></div><div className="kpi-card"><strong>96.4%</strong><span>Forecast Accuracy</span><small>▲ 1.8 pts</small></div></div><section className="card"><div className="card-header"><h3>Forecast Submissions</h3><div className="search"><TimeframeFilter value={timeframe} onChange={onTimeframeChange} /><input value={query} onChange={(event) => onMessage(event.target.value)} placeholder="Search records" /></div></div><DataTable tab="Forecast" query={query} /></section><section className="card chart-card forecast-chart"><h3>Forecast vs Plan Trend</h3><Line data={forecastData} options={{ responsive: true, maintainAspectRatio: false }} /></section></>
 }
 
 function EditPopup({ record, mode = 'edit', onClose, onSave }) {
@@ -149,6 +153,7 @@ function exportDashboardCsv(tab, period, region) {
 
 function Dashboard({ tab, setTab, onLogout }) {
   const [query, setQuery] = useState('')
+  const [timeframe, setTimeframe] = useState('2024-2025')
   const [copilot, setCopilot] = useState(false)
   const [copilotPrompt, setCopilotPrompt] = useState('')
   const [message, setMessage] = useState('')
@@ -164,6 +169,7 @@ function Dashboard({ tab, setTab, onLogout }) {
   const [refreshedAt, setRefreshedAt] = useState('Not refreshed yet')
   const [chartMetric, setChartMetric] = useState('Volume')
   const ask = (text) => { setCopilotPrompt(text); setCopilot(true) }
+  const handleTimeframeChange = (value) => { setTimeframe(value); setMessage(`${value} filter applied`) }
   const periodMetrics = {
     Period: [['35,779', 'MT', 'Volume Actual / Forecast'], ['36,113', 'MT', 'Plan Volume'], ['99.08', '%', 'Index to Plan'], ['103.07', '%', 'Index to Prior Year'], ['3.36', '%', 'CY Conversion Factor'], ['10,633', '$', 'Impact vs Plan']],
     Week: [['8,942', 'MT', 'Volume Actual / Forecast'], ['9,120', 'MT', 'Plan Volume'], ['98.05', '%', 'Index to Plan'], ['101.42', '%', 'Index to Prior Year'], ['3.31', '%', 'CY Conversion Factor'], ['2,184', '$', 'Impact vs Plan']],
@@ -185,7 +191,7 @@ function Dashboard({ tab, setTab, onLogout }) {
       <Insight tab={tab} onAsk={ask} />
       {tab === 'Home' && <section className="card chart-card interactive-chart"><div className="card-header"><h3>Interactive Position View</h3><div className="chart-switcher">{['Volume', 'Plan', 'Variance'].map((metric) => <button className={chartMetric === metric ? 'active' : ''} key={metric} onClick={() => setChartMetric(metric)}>{metric}</button>)}</div></div><Bar data={volumeData} options={{ responsive: true, maintainAspectRatio: false, onClick: handleChartClick, plugins: { legend: { display: false } } }} /></section>}
       {tab === 'Home' && <><div className="kpi-container">{periodMetrics[period].map(([value, unit, label]) => <div className="kpi-card" key={label}><strong>{value} <small>{unit}</small></strong><span>{label}</span></div>)}</div><section className="card"><div className="card-header"><h3>Alerts &amp; Upcoming Updates</h3><button className="btn primary small" onClick={() => setFormModal('alert')}>+ Create Alert</button></div><div className="stat-grid"><div className="stat-box"><span>Next data refresh</span><strong>Daily 06:00</strong><small>Scheduled system refresh</small></div><div className="stat-box"><span>Next feedback review</span><strong>Pending</strong><small>No review date set</small></div><div className="stat-box"><span>Open exceptions</span><strong>2</strong><small>Finance and Plant Matrix</small></div></div></section><section className="card"><div className="card-header"><h3>Allocation Forecast</h3><span className="badge ok">2026 vs 2025</span></div><div className="table-wrap"><table><thead><tr><th>List</th><th>Previous Year Allocation</th><th>Current Year Forecast</th><th>Variance</th><th>Status</th></tr></thead><tbody><tr><td>Co-Man</td><td>10,850 MT</td><td>11,420 MT</td><td className="positive">+570 MT / +5.25%</td><td><span className="badge ok">Ahead</span></td></tr><tr><td>US-Core</td><td>18,900 MT</td><td>18,540 MT</td><td className="negative">-360 MT / -1.90%</td><td><span className="badge warn">Review</span></td></tr><tr><td>Canada</td><td>6,740 MT</td><td>7,020 MT</td><td className="positive">+280 MT / +4.15%</td><td><span className="badge ok">Ahead</span></td></tr></tbody></table></div></section><div className="chart-grid"><section className="card chart-card"><h3>US Position / Wheat · {period}</h3><Bar data={volumeData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }} /></section><section className="card chart-card"><h3>Production &amp; Commodity Usage Ratio / US</h3><Line data={chartData} options={{ responsive: true, maintainAspectRatio: false }} /></section><section className="card chart-card"><h3>Raw Index vs Plan / US</h3><Bar data={indexData} options={{ responsive: true, maintainAspectRatio: false }} /></section><section className="card chart-card"><h3>Raw Usage vs Plan / US</h3><Bar data={usageData} options={{ responsive: true, maintainAspectRatio: false }} /></section></div><section className="card"><div className="card-header"><h3>Recent Trends</h3><span className="badge ok">Last 30 Days</span></div><div className="grid-trends"><div className="table-wrap"><table><thead><tr><th>Metric</th><th>Current</th><th>Previous</th><th>Trend</th></tr></thead><tbody><tr><td>Commodity Cost</td><td>$486.72 / MT</td><td>$477.65 / MT</td><td className="positive">▲ 1.90%</td></tr><tr><td>Actual / Forecast</td><td>35,779 MT</td><td>34,940 MT</td><td className="positive">▲ 2.40%</td></tr><tr><td>Index to Plan</td><td>99.08%</td><td>97.86%</td><td className="positive">▲ 1.22 pts</td></tr><tr><td>Finance Spend</td><td>$18.42M</td><td>$17.91M</td><td className="positive">▲ 2.85%</td></tr></tbody></table></div><div className="trend-chart"><Line data={chartData} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 95, max: 102 } } }} /></div></div></section></>}
-      {tab === 'Admin' ? <><div className="card admin-search"><div className="card-header"><h3>Administration Lists</h3><div className="search"><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search users, plants or growers" /></div></div></div><AdminWorkspace query={query} onAdd={handleAdd} /></> : tab === 'Finance' ? <FinanceWorkspace query={query} onMessage={setQuery} /> : tab === 'Forecast' ? <ForecastWorkspace query={query} /> : <section className="card"><div className="card-header"><h3>{tab === 'Home' ? 'Recent Commodity Activity' : `${tab} Records`}</h3><div className="search"><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search records" /></div></div><DataTable tab={tab} query={query} /></section>}
+      {tab === 'Admin' ? <><div className="card admin-search"><div className="card-header"><h3>Administration Lists</h3><div className="search"><TimeframeFilter value={timeframe} onChange={handleTimeframeChange} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search users, plants or growers" /></div></div></div><AdminWorkspace query={query} onAdd={handleAdd} /></> : tab === 'Finance' ? <FinanceWorkspace query={query} onMessage={setQuery} timeframe={timeframe} onTimeframeChange={handleTimeframeChange} /> : tab === 'Forecast' ? <ForecastWorkspace query={query} onMessage={setQuery} timeframe={timeframe} onTimeframeChange={handleTimeframeChange} /> : <section className="card"><div className="card-header"><h3>{tab === 'Home' ? 'Recent Commodity Activity' : `${tab} Records`}</h3><div className="search"><TimeframeFilter value={timeframe} onChange={handleTimeframeChange} /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search records" /></div></div><DataTable tab={tab} query={query} /></section>}
       {tab !== 'Home' && <div className="stat-grid"><div className="stat-box"><span>Records in view</span><strong>{rows[tab].length}</strong></div><div className="stat-box"><span>Needs attention</span><strong>{rows[tab].filter((row) => ['Review', 'Pending', 'Exception', 'Inactive'].includes(row[row.length - 1])).length}</strong></div><div className="stat-box"><span>Last refresh</span><strong>06:00</strong></div></div>}
     </main><footer>© 2026 CST Commodity Supply Tool</footer>
     {message && <div className="toast" onClick={() => setMessage('')}>{message}</div>}
