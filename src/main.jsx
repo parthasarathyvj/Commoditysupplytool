@@ -23,9 +23,9 @@ const rows = {
     ['Oil', 'CASA GRANDE PLANT', '1,750 MT', '1,770 MT', '1,780 MT', '98.31%', 'On Plan'],
   ],
   Ownership: [
-    ['Wheat', 'John Carter', 'North Grain Co.', 'BELOIT PLANT', 'East - US', '4,820 MT', 'Primary', 'Active'],
-    ['Oil', 'Maria Lopez', 'Agri Oils LLC', 'CASA GRANDE PLANT', 'West - US', '1,750 MT', 'Secondary', 'Active'],
-    ['Oats', 'Daniel Brown', 'Maple Oats Ltd.', 'CAMBRIDGE PLANT', 'Canada', '2,180 MT', 'Primary', 'Review'],
+    ['Wheat', 'John Carter', 'North Grain Co.', 'BELOIT PLANT', 'East - US', '4,820 MT', 7, 'Active'],
+    ['Oil', 'Maria Lopez', 'Agri Oils LLC', 'CASA GRANDE PLANT', 'West - US', '1,750 MT', 1, 'Active'],
+    ['Oats', 'Daniel Brown', 'Maple Oats Ltd.', 'CAMBRIDGE PLANT', 'Canada', '2,180 MT', 10, 'Review'],
   ],
   'Plant Matrix': [
     ['BELOIT PLANT', 'East - US', 'Wheat-38', 'Wheat-7', 'Oats-12', 'Complete'],
@@ -169,7 +169,7 @@ function Dashboard({ tab, setTab, onLogout }) {
   const [refreshedAt, setRefreshedAt] = useState('Not refreshed yet')
   const [chartMetric, setChartMetric] = useState('Volume')
   const ask = (text) => { setCopilotPrompt(text); setCopilot(true) }
-  const handleTimeframeChange = (value) => { setTimeframe(value); setMessage(`${value} filter applied`) }
+  const handleTimeframeChange = (value) => { const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setTimeframe(value); setRefreshedAt(timestamp); setMessage(`${value} data refreshed`) }
   const periodMetrics = {
     Period: [['35,779', 'MT', 'Volume Actual / Forecast'], ['36,113', 'MT', 'Plan Volume'], ['99.08', '%', 'Index to Plan'], ['103.07', '%', 'Index to Prior Year'], ['3.36', '%', 'CY Conversion Factor'], ['10,633', '$', 'Impact vs Plan']],
     Week: [['8,942', 'MT', 'Volume Actual / Forecast'], ['9,120', 'MT', 'Plan Volume'], ['98.05', '%', 'Index to Plan'], ['101.42', '%', 'Index to Prior Year'], ['3.31', '%', 'CY Conversion Factor'], ['2,184', '$', 'Impact vs Plan']],
