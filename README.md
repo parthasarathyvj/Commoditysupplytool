@@ -18,4 +18,4 @@ npm run build
 npm run preview
 ```
 
-GitHub Pages deployment is configured in `.github/workflows/deploy.yml` and publishes pushes to `gh-pages`. The Vite base path is `/Commoditysupplytool/`.
+The production bundle is published at the root of the `gh-pages` branch for GitHub Pages. The Vite base path is `/Commoditysupplytool/`.
