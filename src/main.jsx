@@ -182,7 +182,7 @@ function Dashboard({ tab, setTab, onLogout }) {
   const [period, setPeriod] = useState('Period')
   const [region, setRegion] = useState('US')
   const [alertBanner, setAlertBanner] = useState(null)
-  const [alertCount, setAlertCount] = useState(2)
+  const [alertCount, setAlertCount] = useState(3)
   const [editRecord, setEditRecord] = useState(null)
   const [editMode, setEditMode] = useState('edit')
   const [refreshedAt, setRefreshedAt] = useState('Not refreshed yet')
@@ -233,7 +233,7 @@ function Copilot({ initialMessage, activeTab, period, onClose }) {
     if (normalized.includes('plant') || normalized.includes('allocation') || normalized.includes('behind')) return `Allocation context: CAMBRIDGE PLANT is the only plant flagged Review, while OMAHA PLANT carries 7,210 MT. You are viewing ${activeTab} for ${period}.`
     if (normalized.includes('forecast') || normalized.includes('accuracy')) return `Forecast context: accuracy is 96.4%. Wheat is at 99.01% to plan, Oats at 100.85%, and Oil at 97.27%. The active period is ${period}.`
     if (normalized.includes('ownership') || normalized.includes('owner')) return 'Ownership context: Oats at CAMBRIDGE PLANT is assigned to Daniel Brown and remains in Review. Active coverage is 18 owners across 4 regions.'
-    if (normalized.includes('exception') || normalized.includes('issue')) return 'There are 2 open exceptions: Corn rate above the Finance threshold and CAMBRIDGE allocation below plan. Open the Exceptions view for owners and due dates.'
+    if (normalized.includes('exception') || normalized.includes('issue')) return 'There are 3 open exceptions: Corn rate above the Finance threshold, CAMBRIDGE allocation below plan, and the Daily ERP refresh in progress. Open the Exceptions view for owners and due dates.'
     if (normalized.includes('user') || normalized.includes('admin') || normalized.includes('grower')) return 'Admin context: OMAHA PLANT is Inactive, Daniel Brown is Pending, and Maple Fields Ltd. is awaiting grower certification.'
     if (normalized.includes('period') || normalized.includes('week') || normalized.includes('month')) return `The active dashboard period is ${period}. Change the selector in the toolbar and ask again to compare the refreshed context.`
     return `I’m looking at ${activeTab} for ${period}. Ask about allocations, finance rates, forecast accuracy, ownership, exceptions, users, or growers.`
