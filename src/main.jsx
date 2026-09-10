@@ -135,6 +135,18 @@ function EditPopup({ record, mode = 'edit', onClose, onSave }) {
   return <div className="modal-backdrop" onClick={onClose}><div className="modal" onClick={(event) => event.stopPropagation()}><div className="card-header"><h3>{mode === 'add' ? 'Add' : 'Edit'} {record.name}</h3><button className="close" onClick={onClose}>×</button></div><div className="form-grid"><label>Record<input defaultValue={mode === 'add' ? '' : record.name} placeholder={record.name} /></label><label>Category<input defaultValue={record.category} /></label><label>Status<select defaultValue={record.status}><option>Active</option><option>Approved</option><option>Review</option><option>Pending</option><option>Inactive</option><option>Exception</option></select></label><label>Effective From<input type="date" /></label><label className="full-field">Notes<textarea rows="5" value={notes} onChange={(event) => setNotes(event.target.value)} /></label></div><div className="modal-actions"><button className="btn" onClick={onClose}>Cancel</button><button className="btn primary" onClick={() => { onSave(); onClose() }}>{mode === 'add' ? 'Add Record' : 'Save Changes'}</button></div></div></div>
 }
 
+function exportDashboardCsv(tab, period, region) {
+  const tableRows = rows[tab] || []
+  const csvRows = [[...(headers[tab] || []), 'Period', 'Region'], ...tableRows.map((row) => [...row, period, region])]
+  const csv = csvRows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(',')).join('\n')
+  const link = document.createElement('a')
+  link.href = `data:text/csv;charset=utf-8,${encodeURIComponent(csv)}`
+  link.download = `cst-${tab.toLowerCase().replaceAll(' ', '-')}-${period.toLowerCase()}.csv`
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+}
+
 function Dashboard({ tab, setTab, onLogout }) {
   const [query, setQuery] = useState('')
   const [copilot, setCopilot] = useState(false)
@@ -148,6 +160,7 @@ function Dashboard({ tab, setTab, onLogout }) {
   const [alertCount, setAlertCount] = useState(2)
   const [editRecord, setEditRecord] = useState(null)
   const [editMode, setEditMode] = useState('edit')
+  const [refreshedAt, setRefreshedAt] = useState('Not refreshed yet')
   const [chartMetric, setChartMetric] = useState('Volume')
   const ask = (text) => { setCopilot(true); setMessage(text) }
   const periodMetrics = {
@@ -160,11 +173,12 @@ function Dashboard({ tab, setTab, onLogout }) {
   const indexData = { labels: ['W1', 'W2', 'W3', 'W4', 'W5'], datasets: [{ label: 'Plan', data: [2.8, 2.8, 2.9, 2.8, 2.9], backgroundColor: '#d1d5db' }, { label: 'Actual', data: [2.9, 2.7, 2.8, 2.9, 2.8], backgroundColor: '#60a5fa' }] }
   const usageData = { labels: ['W1', 'W2', 'W3', 'W4', 'W5'], datasets: [{ label: 'Plan Usage', data: [2847, 2586, 2397, 2674, 3068], backgroundColor: '#1e3a8a' }, { label: 'Raw Usage', data: [2875, 2729, 2383, 2876, 3075], backgroundColor: '#60a5fa' }] }
   const handleEditClick = (event) => { const button = event.target.closest('button'); if (!button) return; const action = button.textContent.trim(); if (action === 'Edit') { const row = button.closest('tr'); setEditMode('edit'); setEditRecord({ name: row?.cells?.[0]?.textContent || 'Record', category: row?.cells?.[1]?.textContent || tab, status: 'Active', notes: row?.textContent || '' }) } if (action === '+ Add') { const card = button.closest('.card'); setEditMode('add'); setEditRecord({ name: card?.querySelector('h3')?.textContent || tab, category: tab, status: 'Active', notes: '' }) } }
+  const refreshDashboard = () => { const timestamp = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); setRefreshedAt(timestamp); setMessage(`${region} ${period} data refreshed`) }
   const handleChartClick = (_, elements) => { if (elements.length) setMessage(`${chartMetric} selected for ${volumeData.labels[elements[0].index]}`) }
   return <div className="app-shell" onClick={handleEditClick}>
     <header className="header"><div className="header-logo"><span>CST</span>Commodity Supply Tool</div><nav>{tabs.map((item) => <button className={tab === item ? 'active' : ''} key={item} onClick={() => { setTab(item); setQuery('') }}>{item}</button>)}<button onClick={() => setCopilot(true)}>✦ Copilot</button></nav><button className={`alert-bell${alertCount > 0 ? ' has-alert' : ''}`} aria-label={`${alertCount} data alerts`} title="Data alerts" onClick={() => { setSubView('exceptions'); setAlertCount(0) }}>🔔{alertCount > 0 && <span className="alert-count">{alertCount}</span>}</button><div className="user-menu">Admin <button onClick={onLogout}>Logout</button></div></header>
     <div className="sub-nav"><div>{['US', 'US-Core', 'Co-Man', 'Canada'].map((item) => <button className={region === item ? 'active' : ''} key={item} onClick={() => { setRegion(item); setQuery(''); setMessage(`${item} data refreshed`) }}>{item}</button>)}<button onClick={() => setSubView('details')}>Details</button><button onClick={() => setSubView('exceptions')}>Exceptions</button></div><div className="toolbar"><button className="outline" onClick={() => setModal(true)}>PC Volume Plan</button><button className="outline" onClick={() => setFormModal('feedback')}>Feedback</button><button className="outline" onClick={() => setFormModal('alert')}>Alerts</button><select value={period} onChange={(event) => { setPeriod(event.target.value); setMessage(`${event.target.value} data refreshed for ${region}`) }}><option>Period</option><option>Week</option><option>Month</option></select></div></div>
-    <main key={`${tab}-${region}-${period}`} className="page"><div className="page-head"><div><p className="eyebrow">CST / OPERATIONS</p><h2>{tab === 'Home' ? 'Home Dashboard' : tab}</h2><p>Commodity supply overview for <b>{region}</b> and <b>{period}</b> with current performance and recent trends.</p></div><div className="actions"><button className="btn" onClick={() => setMessage(`${region} ${period} data refreshed`)}>Refresh</button><button className="btn primary" onClick={() => setMessage(`${region} ${period} export generated`)}>Export</button></div></div>
+    <main key={`${tab}-${region}-${period}`} className="page"><div className="page-head"><div><p className="eyebrow">CST / OPERATIONS</p><h2>{tab === 'Home' ? 'Home Dashboard' : tab}</h2><p>Commodity supply overview for <b>{region}</b> and <b>{period}</b> with current performance and recent trends. Last refreshed: {refreshedAt}</p></div><div className="actions"><button className="btn" onClick={refreshDashboard}>Refresh</button><button className="btn primary" onClick={() => { exportDashboardCsv(tab, period, region); setMessage(`${region} ${period} export downloaded`) }}>Export</button></div></div>
       {alertBanner && <div className="alert-banner" role="status"><div><strong>Alert created</strong><span>{alertBanner.type} · {alertBanner.frequency} · Recipient: {alertBanner.recipient || 'CST team'}</span><p>{alertBanner.message || 'The alert has been scheduled successfully.'}</p></div><button className="close" aria-label="Dismiss alert" onClick={() => setAlertBanner(null)}>×</button></div>}
       <Insight tab={tab} onAsk={ask} />
       {tab === 'Home' && <section className="card chart-card interactive-chart"><div className="card-header"><h3>Interactive Position View</h3><div className="chart-switcher">{['Volume', 'Plan', 'Variance'].map((metric) => <button className={chartMetric === metric ? 'active' : ''} key={metric} onClick={() => setChartMetric(metric)}>{metric}</button>)}</div></div><Bar data={volumeData} options={{ responsive: true, maintainAspectRatio: false, onClick: handleChartClick, plugins: { legend: { display: false } } }} /></section>}
